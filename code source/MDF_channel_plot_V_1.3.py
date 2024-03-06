@@ -193,6 +193,7 @@ def plot_channel_3():
         print("MDF3 file not loaded or channel not selected.")
 
 
+# i addded comment line
 # Function to perform cross-correlation between two signals
 def cross_correlate_signals(signal1, signal2, timestamps1, timestamps2):
     # Calculate the sample interval (assuming equally spaced samples and consistent sampling rate)
