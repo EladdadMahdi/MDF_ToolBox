@@ -7,6 +7,7 @@ Dev : P097220
 DEASGC2
 PDM
 
+* French description need to be translated
 Ce script Python est conçu pour fournir une\
 interface utilisateur graphique (GUI) permettant l'analyse et\
 la visualisation de données issues de fichiers de données de mesure (MDF),\
