@@ -1,0 +1,19 @@
+# Ignore venv folder
+MDF_channel_plot/
+
+# Ignore all files in code source except Python scripts
+/code source/*
+!/code source/*.py
+
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+
+# Local History for Visual Studio Code
+.history/
+
+# Built Visual Studio Code Extensions
+*.vsix
