@@ -49,8 +49,10 @@ import tkinter as tk
 from concurrent.futures import ThreadPoolExecutor
 from queue import Queue
 from threading import Thread
+
+# Importer la couleur rouge et la police en gras
 from tkinter import ttk  # For a more modern style of dropdown list
-from tkinter import filedialog, messagebox
+from tkinter import filedialog, font, messagebox
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -115,7 +117,7 @@ def plot_channel():
             ax_mdf4.plot(signal.timestamps, signal.samples)
             ax_mdf4.set_title(f"MDF4 - {channel_name}", fontsize=11, fontname="Arial")
             ax_mdf4.set_xlabel("Time (s)", fontsize=11, fontname="Arial")
-            ax_mdf4.set_ylabel(signal.unit, fontsize=11, fontname="Arial")
+            ax_mdf4.set_ylabel(signal.unit, fontsize=11, fontname="Arial", rotation=90)
             # Annotate the plot with the number of points
             signal_time = signal.timestamps
             num_points = len(signal.samples)
@@ -164,7 +166,10 @@ def plot_channel_3():
             ax_mdf3.set_title(f"MDF3 - {channel_name_3}", fontsize=11, fontname="Arial")
             ax_mdf3.set_xlabel("Time (s)", fontsize=11, fontname="Arial")
             ax_mdf3.set_ylabel(
-                getattr(signal_3, "unit", "Unknown Unit"), fontsize=11, fontname="Arial"
+                getattr(signal_3, "unit", "Unknown Unit"),
+                fontsize=11,
+                fontname="Arial",
+                rotation=90,
             )
             # Annotate the plot with the number of points
             signal_time = signal_3.timestamps
@@ -384,60 +389,6 @@ def cross_correlate_signals(signal1, signal2, timestamps1, timestamps2):
     return lags, correlation
 
 
-# ----------------------------------------------------------------
-# obsolete
-# ----------------------------------------------------------------
-# Function to perform cross-correlation between two signals
-# def cross_correlate_signals(signal1, signal2, timestamps1, timestamps2):
-#     # Calculate the sample interval (assuming equally spaced samples and consistent sampling rate)
-#     if len(timestamps1) > 1 and len(timestamps2) > 1:
-#         sample_interval_1 = np.mean(np.diff(timestamps1))
-#         sample_interval_2 = np.mean(np.diff(timestamps2))
-#         sample_interval = (sample_interval_1 + sample_interval_2) / 2
-#     else:
-#         raise ValueError("Insufficient timestamp data to calculate sample interval")
-#     # normalize sample interval and handle zero denominator
-#     signal1_denominator = (
-#         np.mean(signal1) if np.mean(signal1) != 0 and np.isnan(np.mean(signal1)) else 1
-#     )
-#     signal2_denominator = (
-#         np.mean(signal2) if np.mean(signal2) != 0 and np.isnan(np.mean(signal2)) else 1
-#     )
-#     signal1_normalized = (
-#         (signal1 - signal1_denominator) / np.std(signal1)
-#         if np.std(signal1) != 0 and np.isnan(np.std(signal1))
-#         else signal1
-#     )
-#     signal2_normalized = (
-#         (signal2 - signal2_denominator) / np.std(signal2)
-#         if np.std(signal2) != 0 and np.isnan(np.std(signal2))
-#         else signal2
-#     )
-#     # Convert strings to numerical representations (for example, ASCII values)
-#     signal1_normalized_convert = np.array(
-#         [[ord(c) for c in string] for string in signal1_normalized]
-#     )
-#     signal2_normalized_convert = np.array(
-#         [[ord(c) for c in string] for string in signal2_normalized]
-#     )
-#     # Compute the cross-correlation
-#     correlation = scipy.signal.correlate(
-#         signal1_normalized_convert,
-#         signal2_normalized_convert,
-#         mode="full",
-#         method="fft",
-#     )
-#     # Calculate the number of lags
-#     num_lags = len(correlation)
-#     max_lag = (num_lags // 2) * sample_interval
-#     lags = np.linspace(-max_lag, max_lag, num_lags)
-#     # use
-#     # lags = scipy.signal.correlation_lags(signal1.size,signal2.size,mode="full")
-#     # lag = lags[np.argmax(correlation)]
-#     return lags, correlation
-#     #
-
-
 # Function to plot the cross-correlation between the selected MDF3 and MDF4 channel with vertical bar
 def plot_cross_correlation():
     global fig_corr, ax_corr, canvas_corr
@@ -463,7 +414,7 @@ def plot_cross_correlation():
     ax_corr.axvline(x=0, color="red", linestyle="--")
     ax_corr.set_title("Cross-Correlation MDF4 vs MDF3", fontsize=11, fontname="Arial")
     ax_corr.set_xlabel("Lag (seconds)", fontsize=11, fontname="Arial")
-    ax_corr.set_ylabel("Cross-Correlation", fontsize=11, fontname="Arial")
+    ax_corr.set_ylabel("Cross-Correlation", fontsize=11, fontname="Arial", rotation=90)
     canvas_corr.draw_idle()
     return None, None
 
@@ -519,144 +470,6 @@ def auto_correlate_signal(signal, sample_interval):
     return lags, auto_correlation[len(signal) - 1 :]
 
 
-# ----------------------------------------------------------------
-# v1
-# ----------------------------------------------------------------   "
-# def auto_correlate_signal(signal):
-#     signal = np.nan_to_num(signal)
-#     encoder = OneHotEncoder()
-#     if np.issubdtype(signal.dtype, np.number):  # Numeric signal
-#         mean_signal = np.mean(signal)
-#         std_signal = np.std(signal)
-#         if std_signal != 0:  # Ensure standard deviation is not zero
-#             signal_normalized = (signal - mean_signal) / std_signal
-#         else:
-#             signal_normalized = np.zeros_like(signal)  # If std is zero, set to zero
-#         auto_correlation = scipy.signal.correlate(
-#             signal_normalized, signal_normalized, mode="full", method="fft"
-#         )
-#         auto_correlation = auto_correlation.astype(np.float64)  # Ensure float data type
-#         auto_correlation /= (
-#             np.max(auto_correlation)
-#             if np.max(auto_correlation) != 0 and not np.isnan(np.max(auto_correlation))
-#             else 1
-#         )
-
-#     else:  # Non-numeric signal
-#         signal = signal.reshape(-1, 1)
-#         signal_encoded = encoder.fit_transform(signal)
-#         signal_encoded = signal_encoded.toarray()
-#         auto_correlation = np.mean(
-#             [
-#                 scipy.signal.correlate(
-#                     signal_encoded[:, i],
-#                     signal_encoded[:, i],
-#                     mode="full",
-#                     method="direct",
-#                 )
-#                 for i in range(signal_encoded.shape[1])
-#             ],
-#             axis=0,
-#         )
-#         auto_correlation = auto_correlation.astype(np.float64)  # Ensure float data type
-#         auto_correlation /= (
-#             np.max(auto_correlation)
-#             if np.max(auto_correlation) != 0 and not np.isnan(np.max(auto_correlation))
-#             else 1
-#         )
-
-#     use correlate_lag
-#     num_samples = len(signal)
-#     max_lag_seconds = (num_samples - 1) * sample_interval
-#     lags = np.linspace(0, max_lag_seconds, num_samples)
-#     lags = scipy.signal.correlation_lags(len(signal), len(signal), mode="full")
-#     lag = lags[np.argmax(auto_correlation)]
-#     return lags, auto_correlation[num_samples - 1 :]
-#     return lags[len(signal) - 1 :], auto_correlation[len(signal) - 1 :]
-
-
-# ----------------------------------------------------------------
-# def calculate_correlation(signal_encoded, i, result_queue):
-#     auto_corr = scipy.signal.correlate(
-#         signal_encoded[:, i],
-#         signal_encoded[:, i],
-#         mode="full",
-#         method="direct",
-#     )
-#     result_queue.put(auto_corr)
-
-
-# def auto_correlate_signal(signal, sample_interval):
-#     signal = np.nan_to_num(signal)
-#     encoder = OneHotEncoder()
-#     if np.issubdtype(signal.dtype, np.number):  # Numeric signal
-#         mean_signal = np.mean(signal)
-#         std_signal = np.std(signal)
-#         if std_signal != 0:  # Ensure standard deviation is not zero
-#             signal_normalized = (signal - mean_signal) / std_signal
-#         else:
-#             signal_normalized = np.zeros_like(signal)  # If std is zero, set to zero
-#         auto_correlation = scipy.signal.correlate(
-#             signal_normalized, signal_normalized, mode="full", method="fft"
-#         )
-#         auto_correlation = auto_correlation.astype(np.float64)  # Ensure float data type
-#         auto_correlation /= (
-#             np.max(auto_correlation)
-#             if np.max(auto_correlation) != 0 and not np.isnan(np.max(auto_correlation))
-#             else 1
-#         )
-
-#     else:  # Non-numeric signal
-#         signal = signal.reshape(-1, 1)
-#         signal_encoded = encoder.fit_transform(signal)
-#         signal_encoded = signal_encoded.toarray()
-
-#         # Create a new window for progress bar
-#         progress_window = tk.Toplevel()
-#         progress_window.title("Calculating Auto-correlation")
-#         progress_window.geometry("300x100")
-
-#         # Initialize progress bar
-#         progress = ttk.Progressbar(
-#             progress_window, orient="horizontal", length=300, mode="indeterminate"
-#         )
-#         progress.pack(pady=20)
-
-#         # Initialize result queue and thread pool executor
-#         result_queue = Queue()
-#         with ThreadPoolExecutor() as executor:
-#             # Submit tasks to executor
-#             for i in range(signal_encoded.shape[1]):
-#                 executor.submit(calculate_correlation, signal_encoded, i, result_queue)
-
-#             # Start progress bar
-#             progress.start()
-
-#             # Start thread to wait for results
-#             def process_results():
-#                 auto_correlation_list = [
-#                     result_queue.get() for _ in range(signal_encoded.shape[1])
-#                 ]
-#                 auto_correlation = np.mean(auto_correlation_list, axis=0)
-#                 auto_correlation = auto_correlation.astype(
-#                     np.float64
-#                 )  # Ensure float data type
-#                 auto_correlation /= (
-#                     np.max(auto_correlation)
-#                     if np.max(auto_correlation) != 0
-#                     and not np.isnan(np.max(auto_correlation))
-#                     else 1
-#                 )
-#                 # Update Tkinter window when all calculations are done
-#                 progress.stop()
-#                 progress.destroy()
-#                 # Once the calculations are done, plot the results or perform any other desired action
-#                 progress_window.destroy()
-
-#             thread = Thread(target=process_results)
-#          thread.start()
-
-
 # # Function to calulcate sample interval
 def get_sample_interval(timestamps):
     if len(timestamps) > 1:
@@ -684,7 +497,7 @@ def plot_auto_correlation_mdf4():
             )
             ax_auto_corr_mdf4.set_xlabel("Lag (seconds)", fontsize=11, fontname="Arial")
             ax_auto_corr_mdf4.set_ylabel(
-                "Autocorrelation", fontsize=11, fontname="Arial"
+                "Autocorrelation", fontsize=11, fontname="Arial", rotation=90
             )
             canvas_auto_corr_mdf4.draw()
 
@@ -718,7 +531,7 @@ def plot_auto_correlation_mdf3():
             )
             ax_auto_corr_mdf3.set_xlabel("Lag (seconds)", fontsize=11, fontname="Arial")
             ax_auto_corr_mdf3.set_ylabel(
-                "Autocorrelation", fontsize=11, fontname="Arial"
+                "Autocorrelation", fontsize=11, fontname="Arial", rotation=90
             )
             canvas_auto_corr_mdf3.draw()
         else:
@@ -727,132 +540,6 @@ def plot_auto_correlation_mdf3():
     else:
         # If signal_mdf4_unit is empty, show a warning message
         messagebox.showwarning("Erreur: Pour continuer veuillez choisir un fichier.")
-
-
-# Function to calculate pearson coeff
-# def calculate_pearson_correlation(signal1, signal2):
-#     # Ensuring the signals are of the same length
-#     min_len = min(len(signal1), len(signal2))
-#     signal1, signal2 = signal1[:min_len], signal2[:min_len]
-#     # encode signal1 and signal2
-#     encoder = OneHotEncoder()
-
-#     # Signal1
-#     signal1 = signal1.reshape(-1, 1)
-#     signal1_encoded = encoder.fit_transform(signal1)
-#     signal1_encoded = signal1_encoded.toarray()
-#     signal1_encoded = signal1_encoded.astype(np.float64)
-#     # Signal2
-#     signal2 = signal2.reshape(-1, 1)
-#     signal2_encoded = encoder.fit_transform(signal2)
-#     signal2_encoded = signal2_encoded.toarray()
-#     signal2_encoded = signal2_encoded.astype(np.float64)
-#     # Calculate Pearson correlation
-#     correlation_matrix = np.corrcoef(signal1_encoded, signal2_encoded)
-#     # Extract the correlation coefficient (off-diagonal value)
-#     pearson_correlation = correlation_matrix[0, 1]
-#     return pearson_correlation
-
-
-# def calculate_pearson_correlation(signal1, signal2):
-#     # Ensuring the signals are of the same length
-#     min_len = min(len(signal1), len(signal2))
-#     signal1, signal2 = signal1[:min_len], signal2[:min_len]
-
-#     # Create an instance of OneHotEncoder
-#     encoder = OneHotEncoder(sparse=False)  # Use sparse=False to get a dense array
-
-#     # Encode signal1
-#     signal1 = signal1.reshape(-1, 1)
-#     signal1_encoded = encoder.fit_transform(signal1)
-
-#     # Encode signal2
-#     signal2 = signal2.reshape(-1, 1)
-#     signal2_encoded = encoder.fit_transform(signal2)
-
-#     # Calculate Pearson correlation
-#     correlation_matrix = np.corrcoef(signal1_encoded.T, signal2_encoded.T)
-#     # Extract the correlation coefficient (off-diagonal value)
-#     pearson_correlation = correlation_matrix[0, 1]
-
-#     return pearson_correlation
-
-
-# def calculate_pearson_correlation(signal1, signal2):
-#     # Create an instance of OneHotEncoder
-#     encoder = OneHotEncoder()
-#     # Ensuring the signals are of the same length
-#     min_len = min(len(signal1), len(signal2))
-#     signal1, signal2 = signal1[:min_len], signal2[:min_len]
-#     # case signal1 and signal2 is numeric
-#     if np.issubdtype(signal1.dtype, np.number) and np.issubdtype(
-#         signal2.dtype, np.number
-#     ):
-#         # Calculate Pearson correlation
-#         correlation_matrix = np.corrcoef(signal1, signal2)
-#     # case signal1 is numeric and signal2 is non numeric
-#     if np.issubdtype(signal1.dtype, np.number) and not np.issubdtype(
-#         signal2.dtype, np.number
-#     ):
-#         # Encode signal2
-#         signal2 = signal2.reshape(-1, 1)
-#         signal2_encoded = encoder.fit_transform(signal2).toarray()
-#         # Check for zero variance
-#         if np.var(signal2_encoded, axis=0).min() == 0:
-#             return np.nan  # Return NaN if zero variance is found
-#         # Check for NaN values
-#         if np.isnan(signal2_encoded).any():
-#             return np.nan  # Return NaN if NaN values are present
-#         # Calculate Pearson correlation
-#         correlation_matrix = np.corrcoef(signal1, signal2_encoded.T)
-#         # Extract the correlation coefficient (off-diagonal value)
-#         pearson_correlation = correlation_matrix[0, 1]
-
-#     # case signal1 is non numeric and signal2 is numeric
-#     if not np.issubdtype(signal1.dtype, np.number) and np.issubdtype(
-#         signal2.dtype, np.number
-#     ):
-#         # Encode signal1
-#         signal1 = signal1.reshape(-1, 1)
-#         signal1_encoded = encoder.fit_transform(signal1).toarray()
-#         # Check for zero variance
-#         if np.var(signal1_encoded, axis=0).min() == 0:
-#             return np.nan  # Return NaN if zero variance is found
-#         # Check for NaN values
-#         if np.isnan(signal1_encoded).any():
-#             return np.nan  # Return NaN if NaN values are present
-#         # Calculate Pearson correlation
-#         correlation_matrix = np.corrcoef(signal1_encoded.T, signal2)
-#         # Extract the correlation coefficient (off-diagonal value)
-#         pearson_correlation = correlation_matrix[0, 1]
-
-#     # case signal1 and signal2 non numeric
-#     if not np.issubdtype(signal1.dtype, np.number) and not np.issubdtype(
-#         signal2.dtype, np.number
-#     ):
-#         # Encode signal1
-#         signal1 = signal1.reshape(-1, 1)
-#         signal1_encoded = encoder.fit_transform(signal1).toarray()
-
-#         # Encode signal2
-#         signal2 = signal2.reshape(-1, 1)
-#         signal2_encoded = encoder.fit_transform(signal2).toarray()
-
-#         # Check for zero variance
-#         if (
-#             np.var(signal1_encoded, axis=0).min() == 0
-#             or np.var(signal2_encoded, axis=0).min() == 0
-#         ):
-#             return np.nan  # Return NaN if zero variance is found
-
-#         # Check for NaN values
-#         if np.isnan(signal1_encoded).any() or np.isnan(signal2_encoded).any():
-#             return np.nan  # Return NaN if NaN values are present
-
-#         # Calculate Pearson correlation
-#         correlation_matrix = np.corrcoef(signal1_encoded.T, signal2_encoded.T)
-#         # Extract the correlation coefficient (off-diagonal value)
-#         pearson_correlation = correlation_matrix[0, 1]
 
 
 #     return pearson_correlation
@@ -898,22 +585,55 @@ def calculate_pearson_correlation(signal1, signal2):
 
 # Create a Text widget for displaying Pearson correlation
 def plot_pearson_correlation():
+    # try:
+    #     # Assuming mdf4_file, channel_var, mdf3_file_3, and channel_var_3 are defined elsewhere
+    #     signal_mdf4 = mdf4_file.get(channel_var.get()).samples
+    #     signal_mdf3 = mdf3_file_3.get(channel_var_3.get()).samples
+
+    #     # Calculate Pearson correlation using the calculate_pearson_correlation function
+    #     pearson = calculate_pearson_correlation(signal_mdf4, signal_mdf3)
+
+    #     # Display Pearson correlation in the Text widget (assuming text_box is defined elsewhere)
+    #     text_box.delete("1.0", tk.END)  # Clear existing content
+    #     # Créer une police en gras
+    #     bold_font = font.Font(weight="bold")
+    #     # Insérer le texte en gras et en rouge dans text_box
+    #     text_box.tag_configure("bold_red", font=bold_font, foreground="red")
+    #     text_box.insert(tk.END, f"Pearson correlation : {pearson}", "bold_red")
+
+    # except Exception as e:
+    #     # Handle any exceptions or errors
+    #     text_box.delete("1.0", tk.END)  # Clear existing content
+    #     text_box.insert(tk.END, f"Error: {str(e)}")
+
+    # # Debugging output (can be commented out in production)
+    # print(f"Pearson correlation coefficient: {pearson}")
+
     try:
-        # Assuming mdf4_file, channel_var, mdf3_file_3, and channel_var_3 are defined elsewhere
+        font_size = 12  # Default font size
         signal_mdf4 = mdf4_file.get(channel_var.get()).samples
         signal_mdf3 = mdf3_file_3.get(channel_var_3.get()).samples
 
         # Calculate Pearson correlation using the calculate_pearson_correlation function
         pearson = calculate_pearson_correlation(signal_mdf4, signal_mdf3)
-
-        # Display Pearson correlation in the Text widget (assuming text_box is defined elsewhere)
+        # Limit the precision of Pearson correlation
+        precision = 3
+        pearson = round(pearson, precision)
+        # Display Pearson correlation in the Text widget
         text_box.delete("1.0", tk.END)  # Clear existing content
-        text_box.insert(tk.END, f"Pearson correlation coefficient: {pearson}")
+
+        # Create a font with bold and specified font size
+        custom_font = font.Font(text_box, text_box.cget("font"))
+        custom_font.configure(weight="bold", size=font_size)
+        text_box.tag_configure("custom_font", font=custom_font, foreground="red")
+
+        # Insert the text with the specified tag into the Text widget
+        text_box.insert(tk.END, f"Pearson correlation : {pearson}\n", "custom_font")
 
     except Exception as e:
         # Handle any exceptions or errors
         text_box.delete("1.0", tk.END)  # Clear existing content
-        text_box.insert(tk.END, f"Error: {str(e)}")
+        text_box.insert(tk.END, f"Error: {str(e)}\n")
 
     # Debugging output (can be commented out in production)
     print(f"Pearson correlation coefficient: {pearson}")
@@ -940,7 +660,9 @@ def update_superimposed_plot():
         "Superposition courbe MDF4 & MDF3", fontsize=11, fontname="Arial"
     )
     ax_superimposed.set_xlabel("Time (s)", fontsize=11, fontname="Arial")
-    ax_superimposed.set_ylabel("Signal Amplitude", fontsize=11, fontname="Arial")
+    ax_superimposed.set_ylabel(
+        "Signal Amplitude", fontsize=11, fontname="Arial", rotation=90
+    )
     ax_superimposed.legend()
     # Draw the canvas
     canvas_superimposed.draw_idle()
@@ -1149,15 +871,24 @@ def reset_all_operations():
         text_box.delete("1.0", tk.END)
 
 
+# Désactive le mouvement de la souris sur tous les widgets de cross_corr_frame
+def disable_mouse_motion(event):
+    return "break"
+
+
 ######################################
 #                 GUI                #
 ######################################
 # Initialize the main window
 root = ThemedTk(theme="aquativo")
-root.title("Contrôle qualité conversion MDF4_MDF3 V.1.1")
-window_width = 1235
-window_height = 1010
+root.title("Contrôle qualité conversion MDF4_MDF3 V.1.3")
+# window_width = 1235
+# window_height = 1010
 # Fix the window for 17'
+frame_width = 410
+frame_height = 300
+window_width = frame_width * 3 + 20  # Add padding
+window_height = 1010
 root.geometry(f"{window_width}x{window_height}")
 # Prevent resizing of the window in the horizontal direction
 root.resizable(False, False)
@@ -1166,14 +897,65 @@ fig_width = 4
 fig_height = 3.7
 # Frames of the GUI
 # Define the size of the frame
-frame_width = 400
-frame_height = 300
+# #frame_width = 410
+# frame_height = 300
 
+# frame_width = 410
+# window_width = frame_width * 3 + 20  # Add padding
+# window_height = 1010
+# MDF3 FRAME
 mdf3_frame = tk.Frame(root, width=frame_width, height=frame_height, bg="lightblue")
+mdf3_frame.grid_propagate(False)
+mdf3_frame.bind("<Enter>", lambda event: None)  # Désactive le survol de la souris
+mdf3_frame.bind("<Leave>", lambda event: None)
+mdf3_frame.bind("<Enter>", lambda event: "break")  # Désactive le survol de la souris
+mdf3_frame.bind("<Leave>", lambda event: "break")  # Désactive le départ de la souris
+mdf3_frame.bind_all("<Motion>", lambda event: "break")
+
+# MDF4 FRAME
 mdf4_frame = tk.Frame(root, width=frame_width, height=frame_height, bg="lightblue")
+mdf4_frame.grid_propagate(False)
+mdf4_frame.bind("<Enter>", lambda event: None)  # Désactive le survol de la souris
+mdf4_frame.bind("<Leave>", lambda event: None)  # Désactive le départ de la souris
+mdf4_frame.bind("<Enter>", lambda event: "break")  # Désactive le survol de la souris
+mdf4_frame.bind("<Leave>", lambda event: "break")  # Désactive le départ de la souris
+mdf4_frame.bind_all("<Motion>", lambda event: "break")
+
+# CROSS CORR FRAME
 cross_corr_frame = tk.Frame(
     root, width=frame_width, height=frame_height, bg="lightblue"
 )
+
+# cross_corr_frame.grid_propagate(False)
+cross_corr_frame.bind("<Enter>", lambda event: None)  # Désactive le survol de la souris
+cross_corr_frame.bind("<Leave>", lambda event: None)  # Désactive le départ de la souris
+cross_corr_frame.bind_all("<Motion>", lambda event: "break")
+cross_corr_frame.bind(
+    "<Enter>", lambda event: "break"
+)  # Désactive le survol de la souris
+cross_corr_frame.bind("<Leave>", lambda event: "break")
+
+for widget in cross_corr_frame.winfo_children():
+    widget.bind("<Enter>", lambda event: "break")  # Disable hover
+    widget.bind("<Leave>", lambda event: "break")  # Disable leave
+    widget.bind_all("<Motion>", lambda event: "break")  # Disable motion
+    widget.bind("<Enter>", lambda event: None)  # Disable hover
+    widget.bind("<Leave>", lambda event: None)
+
+for widget in mdf3_frame.winfo_children():
+    widget.bind("<Enter>", lambda event: "break")  # Disable hover
+    widget.bind("<Leave>", lambda event: "break")  # Disable leave
+    widget.bind("<Enter>", lambda event: None)  # Disable hover
+    widget.bind("<Leave>", lambda event: None)  # Disable leave
+    widget.bind_all("<Motion>", lambda event: "break")
+
+    # Disable mot
+for widget in mdf4_frame.winfo_children():
+    widget.bind("<Enter>", lambda event: "break")  # Disable hover
+    widget.bind("<Leave>", lambda event: "break")  # Disable leave
+    widget.bind("<Enter>", lambda event: None)  # Disable hover
+    widget.bind("<Leave>", lambda event: None)  # Disable leave
+    widget.bind_all("<Motion>", lambda event: "break")  # Disable mot
 
 # Gloabal variables
 mdf3_file_3 = None
@@ -1186,26 +968,23 @@ channel_var_3 = tk.StringVar()
 # Frames position in the GUI
 # MDF4
 mdf4_frame.grid(row=0, column=0, sticky="nsew")
-
 # MDF3
 mdf3_frame.grid(row=0, column=1, sticky="nsew")
-
 # CROSS_CORR_FRAME
 cross_corr_frame.grid(row=0, column=2, sticky="nsew")
 
+# Exemple de taille minimale de 400 pixels
 # Configure rows and columns of frames to expand
 for frame in [mdf3_frame, mdf4_frame, cross_corr_frame]:
     # frame.grid_propagate(False)
-    for row in range(9):  # Rows from 0 to 8
+    for row in range(10):  # Rows from 0 to 8
         frame.grid_rowconfigure(row, weight=1)
-    for column in range(3):  # Columns from 0 to 2
+    for column in range(10):  # Columns from 0 to 2
         frame.grid_columnconfigure(column, weight=1)
-
 
 # ----------------------------------------------------------------
 # MDF4 Interface Elements
 # ----------------------------------------------------------------
-
 ttk.Button(mdf4_frame, text="Importer fichier MDF4", command=load_mdf4, width=40).grid(
     row=0, column=0, padx=5, pady=5, sticky="nsew"
 )
@@ -1256,7 +1035,6 @@ canvas_auto_corr_mdf4.get_tk_widget().grid(row=7, column=0, sticky="nsew")
 # ----------------------------------------------------------------
 # MDF3 Interface Elements
 # ----------------------------------------------------------------
-
 ttk.Button(mdf3_frame, text="Importer fichier MDF3", command=load_mdf3, width=40).grid(
     row=0, column=1, padx=5, pady=5, sticky="nsew"
 )
@@ -1307,7 +1085,6 @@ canvas_auto_corr_mdf3.get_tk_widget().grid(row=7, column=1, sticky="nsew")
 # ----------------------------------------------------------------
 # Correlation Buttons and Plot
 # ----------------------------------------------------------------
-
 ttk.Button(
     cross_corr_frame,
     text="Calcul coefficient de Pearson",
@@ -1360,17 +1137,43 @@ ttk.Button(
 
 fig_superimposed, ax_superimposed = plt.subplots(figsize=(fig_width, fig_height))
 canvas_superimposed = FigureCanvasTkAgg(fig_superimposed, master=cross_corr_frame)
+# Désactiver les événements de la souris pour le widget du graphique
+canvas_superimposed.get_tk_widget().bind("<Motion>", lambda event: "break")
+canvas_superimposed.get_tk_widget().bind(
+    "<Enter>", lambda event: None
+)  # Désactiver le survol
+canvas_superimposed.get_tk_widget().bind("<Leave>", lambda event: None)
+# Désactiver le départ
+canvas_superimposed.get_tk_widget().bind("<Motion>", lambda event: "break")
+canvas_superimposed.get_tk_widget().bind(
+    "<Enter>", lambda event: "break"
+)  # Désactiver le survol
+canvas_superimposed.get_tk_widget().bind(
+    "<Leave>", lambda event: "break"
+)  # Désactiver le départ
+
 widget_superimposed = canvas_superimposed.get_tk_widget()
 widget_superimposed.grid(row=6, column=0, padx=5, pady=5, sticky="nsew")
 
+# Update idletasks to ensure proper configuration
+root.update()
 # For Superimposed canvas
 toolbar_superimposed = NavigationToolbar2Tk(
     canvas_superimposed, cross_corr_frame, pack_toolbar=False
 )
 toolbar_superimposed.update()
 toolbar_superimposed.grid(row=7, column=0, padx=5, pady=5, sticky="nsew")
-
 canvas_superimposed.get_tk_widget().grid(row=6, column=0, sticky="nsew")
+# Disable mouse motion for the superimposed canvas
+for widget in canvas_superimposed.get_tk_widget().winfo_children():
+    widget.bind("<Motion>", lambda event: "break")
+    widget.bind("<Enter>", lambda event: "break")  # Disable hover
+    widget.bind("<Leave>", lambda event: "break")  # Disable leave
+
+# Bind mouse motion event to the root window
+root.bind("<Motion>", lambda event: "break")
+root.bind("<Enter>", lambda event: "break")  # Disable hover
+root.bind("<Leave>", lambda event: "break")  # Disable leave
 
 # ----------------------------------------------------------------
 # start gui
