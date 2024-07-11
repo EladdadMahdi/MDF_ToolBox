@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "eslint",
+			"path": ".venv/Lib/site-packages/matplotlib/backends/web_backend",
+			"problemMatcher": [],
+			"label": "npm: eslint - .venv/Lib/site-packages/matplotlib/backends/web_backend",
+			"detail": "eslint . --fix"
+		}
+	]
+}

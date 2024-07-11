@@ -57,13 +57,17 @@ from tkinter import filedialog, font, messagebox
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.signal
-from asammdf import MDF
+
+# from asammdf import MDF
+from asammdf import MDF, set_global_option
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder, OrdinalEncoder
 from ttkthemes import ThemedTk
 
 sys.stdout = io.StringIO()  # Redirect stdout to a string buffer
 sys.stderr = sys.stdout  # Redirect stderr to stdout
+set_global_option("raise_on_multiple_occurrences", False)
+# MDF.configure(raise_on_multiple_occurences=False)
 
 
 # Function to load MDF4 file using a file dialog
