@@ -806,7 +806,7 @@ def disable_mouse_motion(event):
 ######################################
 # Initialize the main window
 root = ThemedTk(theme="aquativo")
-root.title("Contrôle qualité conversion MDF4_MDF3 V.1.3")
+root.title("MDF Channel Visualization V.1.0")
 
 # Fix the window for 17'
 frame_width = 410
