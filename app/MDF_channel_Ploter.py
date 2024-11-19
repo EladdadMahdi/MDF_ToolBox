@@ -1,44 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Feb 23 14:40:02 2024
-@author: p097220
-Readme.md
-Dev : P097220
-DEASGC2
-PDM
-
-* French description need to be translated
-Ce script Python est conçu pour fournir une\
-interface utilisateur graphique (GUI) permettant l'analyse et\
-la visualisation de données issues de fichiers de données de mesure (MDF),\
-spécifiquement les versions MDF3 et MDF4.\
-Il utilise customtkinter pour une apparence améliorée de l'interface utilisateur\
-et matplotlib pour le traçage des données. Voici les fonctionnalités clés du script :\
-Fonctionnalités Principales:\
-Chargement des Fichiers MDF: Permet à l'utilisateur de charger des fichiers
-MDF3 ou MDF4 à partir du système de fichiers en utilisant un dialogue de sélection de fichiers.
-Affichage des Canaux: Après le chargement d'un fichier MDF, les canaux disponibles sont affichés
-dans un menu déroulant, permettant à l'utilisateur de sélectionner spécifiquement quel canal visualiser.
-Visualisation des Données: Offre la possibilité de tracer les données sélectionnées pour les canaux MDF3 et MDF4,
-permettant une analyse visuelle des mesures enregistrées.
-*Analyse de Signal:
-Corrélation Croisée: Fonctionnalité pour calculer et tracer la corrélation croisée entre deux signaux sélectionnés,
-idant à identifier les relations temporelles entre eux.
-Auto-Correlation: Capacité à calculer et afficher l'auto-corrélation d'un signal, utile pour l'analyse des propriétés périodiques.
-Corrélation de Pearson: Calcule et affiche le coefficient de corrélation de Pearson entre deux signaux,
-fournissant une mesure de leur corrélation linéaire.
-Superposition des Tracés: Permet la superposition des tracés des données MDF3 et MDF4 pour une comparaison directe,
-facilitant l'identification des différences ou des anomalies entre les versions des fichiers.
-*Structure du Script:
-Le script organise son code en fonctions clairement définies pour chaque opération, comme le chargement des fichiers,
- la mise à jour des menus déroulants avec les canaux disponibles, et la visualisation des données.
-Il intègre des pratiques de gestion d'erreur pour une meilleure robustesse, notamment lors du chargement des fichiers et de la visualisation des données.
-La configuration de l'interface utilisateur et la logique métier sont séparées pour une meilleure clarté et maintenance du code.
-*Utilisation:
-Pour utiliser ce script, l'utilisateur doit exécuter le programme, qui lancera une interface graphique. À partir de là, il peut charger des fichiers MDF,
-sélectionner des canaux pour l'analyse, et visualiser différents types de tracés et d'analyses de signal directement à partir de l'interface.
-Ce script vise à fournir un outil complet pour l'analyse des fichiers MDF dans un environnement graphique convivial,
-facilitant l'analyse des données de mesure automobile pour les ingénieurs et les techniciens.
+@author: EladdadMahdi
 
 """
 import io
