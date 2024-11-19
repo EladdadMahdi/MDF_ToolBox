@@ -1,44 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Feb 23 14:40:02 2024
-@author: p097220
-Readme.md
-Dev : P097220
-DEASGC2
-PDM
-
-* French description need to be translated
-Ce script Python est conçu pour fournir une\
-interface utilisateur graphique (GUI) permettant l'analyse et\
-la visualisation de données issues de fichiers de données de mesure (MDF),\
-spécifiquement les versions MDF3 et MDF4.\
-Il utilise customtkinter pour une apparence améliorée de l'interface utilisateur\
-et matplotlib pour le traçage des données. Voici les fonctionnalités clés du script :\
-Fonctionnalités Principales:\
-Chargement des Fichiers MDF: Permet à l'utilisateur de charger des fichiers
-MDF3 ou MDF4 à partir du système de fichiers en utilisant un dialogue de sélection de fichiers.
-Affichage des Canaux: Après le chargement d'un fichier MDF, les canaux disponibles sont affichés
-dans un menu déroulant, permettant à l'utilisateur de sélectionner spécifiquement quel canal visualiser.
-Visualisation des Données: Offre la possibilité de tracer les données sélectionnées pour les canaux MDF3 et MDF4,
-permettant une analyse visuelle des mesures enregistrées.
-*Analyse de Signal:
-Corrélation Croisée: Fonctionnalité pour calculer et tracer la corrélation croisée entre deux signaux sélectionnés,
-idant à identifier les relations temporelles entre eux.
-Auto-Correlation: Capacité à calculer et afficher l'auto-corrélation d'un signal, utile pour l'analyse des propriétés périodiques.
-Corrélation de Pearson: Calcule et affiche le coefficient de corrélation de Pearson entre deux signaux,
-fournissant une mesure de leur corrélation linéaire.
-Superposition des Tracés: Permet la superposition des tracés des données MDF3 et MDF4 pour une comparaison directe,
-facilitant l'identification des différences ou des anomalies entre les versions des fichiers.
-*Structure du Script:
-Le script organise son code en fonctions clairement définies pour chaque opération, comme le chargement des fichiers,
- la mise à jour des menus déroulants avec les canaux disponibles, et la visualisation des données.
-Il intègre des pratiques de gestion d'erreur pour une meilleure robustesse, notamment lors du chargement des fichiers et de la visualisation des données.
-La configuration de l'interface utilisateur et la logique métier sont séparées pour une meilleure clarté et maintenance du code.
-*Utilisation:
-Pour utiliser ce script, l'utilisateur doit exécuter le programme, qui lancera une interface graphique. À partir de là, il peut charger des fichiers MDF,
-sélectionner des canaux pour l'analyse, et visualiser différents types de tracés et d'analyses de signal directement à partir de l'interface.
-Ce script vise à fournir un outil complet pour l'analyse des fichiers MDF dans un environnement graphique convivial,
-facilitant l'analyse des données de mesure automobile pour les ingénieurs et les techniciens.
+@author: EladdadMahdi
 
 """
 import io
@@ -50,7 +13,6 @@ from concurrent.futures import ThreadPoolExecutor
 from queue import Queue
 from threading import Thread
 
-# Importer la couleur rouge et la police en gras
 from tkinter import ttk  # For a more modern style of dropdown list
 from tkinter import filedialog, font, messagebox
 
@@ -67,8 +29,6 @@ from ttkthemes import ThemedTk
 sys.stdout = io.StringIO()  # Redirect stdout to a string buffer
 sys.stderr = sys.stdout  # Redirect stderr to stdout
 set_global_option("raise_on_multiple_occurrences", False)
-# MDF.configure(raise_on_multiple_occurences=False)
-
 
 # Function to load MDF4 file using a file dialog
 def load_mdf4():
@@ -79,8 +39,7 @@ def load_mdf4():
         global mdf4_file
         mdf4_file = MDF(file_path)
         update_channel_dropdown()
-
-
+        
 # Function to load MDF3 file using a file dialog
 def load_mdf3():
     file_path_3 = filedialog.askopenfilename(
@@ -91,7 +50,6 @@ def load_mdf3():
         mdf3_file_3 = MDF(file_path_3)
         update_channel_dropdown_3()
 
-
 # Update the dropdown with channels from the loaded MDF4 file
 def update_channel_dropdown():
     """scroll channels list MDF4"""
@@ -100,7 +58,6 @@ def update_channel_dropdown():
         channel_var.set(channels[0])
         channel_dropdown["values"] = channels
 
-
 # Update the dropdown with channels from the loaded MDF3 file
 def update_channel_dropdown_3():
     """scroll channels list MDF3"""
@@ -108,7 +65,6 @@ def update_channel_dropdown_3():
         channels_3 = sorted(list(mdf3_file_3.channels_db))
         channel_var_3.set(channels_3[0])
         channel_dropdown_3["values"] = channels_3
-
 
 # plot the dropdown with channels from the loaded MDF4 file
 def plot_channel():
@@ -156,7 +112,6 @@ def plot_channel():
             print(f"Error in plotting MDF4 channel '{channel_name}': {e}")
     else:
         print("MDF4 file not loaded or channel not selected.")
-
 
 # plot the dropdown with channels from the loaded MDF4 file
 def plot_channel_3():
@@ -422,10 +377,6 @@ def plot_cross_correlation():
     canvas_corr.draw_idle()
     return None, None
 
-
-# ----------------------------------------------------------------
-# test_ok
-# ----------------------------------------------------------------
 def auto_correlate_signal(signal, sample_interval):
     signal = np.nan_to_num(signal)
     encoder = OneHotEncoder()
@@ -473,14 +424,12 @@ def auto_correlate_signal(signal, sample_interval):
     lags = np.linspace(0, max_lag_seconds, num_samples)
     return lags, auto_correlation[len(signal) - 1 :]
 
-
 # # Function to calulcate sample interval
 def get_sample_interval(timestamps):
     if len(timestamps) > 1:
         return np.mean(np.diff(timestamps))
     else:
         raise ValueError("Insufficient data to calculate sample interval")
-
 
 # Function to plot the auto correlation of MDF3
 def plot_auto_correlation_mdf4():
@@ -545,7 +494,6 @@ def plot_auto_correlation_mdf3():
         # If signal_mdf4_unit is empty, show a warning message
         messagebox.showwarning("Erreur: Pour continuer veuillez choisir un fichier.")
 
-
 #     return pearson_correlation
 def calculate_pearson_correlation(signal1, signal2):
     # Create an instance of OrdinalEncoder
@@ -589,30 +537,6 @@ def calculate_pearson_correlation(signal1, signal2):
 
 # Create a Text widget for displaying Pearson correlation
 def plot_pearson_correlation():
-    # try:
-    #     # Assuming mdf4_file, channel_var, mdf3_file_3, and channel_var_3 are defined elsewhere
-    #     signal_mdf4 = mdf4_file.get(channel_var.get()).samples
-    #     signal_mdf3 = mdf3_file_3.get(channel_var_3.get()).samples
-
-    #     # Calculate Pearson correlation using the calculate_pearson_correlation function
-    #     pearson = calculate_pearson_correlation(signal_mdf4, signal_mdf3)
-
-    #     # Display Pearson correlation in the Text widget (assuming text_box is defined elsewhere)
-    #     text_box.delete("1.0", tk.END)  # Clear existing content
-    #     # Créer une police en gras
-    #     bold_font = font.Font(weight="bold")
-    #     # Insérer le texte en gras et en rouge dans text_box
-    #     text_box.tag_configure("bold_red", font=bold_font, foreground="red")
-    #     text_box.insert(tk.END, f"Pearson correlation : {pearson}", "bold_red")
-
-    # except Exception as e:
-    #     # Handle any exceptions or errors
-    #     text_box.delete("1.0", tk.END)  # Clear existing content
-    #     text_box.insert(tk.END, f"Error: {str(e)}")
-
-    # # Debugging output (can be commented out in production)
-    # print(f"Pearson correlation coefficient: {pearson}")
-
     try:
         font_size = 12  # Default font size
         signal_mdf4 = mdf4_file.get(channel_var.get()).samples
@@ -670,7 +594,6 @@ def update_superimposed_plot():
     ax_superimposed.legend()
     # Draw the canvas
     canvas_superimposed.draw_idle()
-
 
 # Function to plot
 def perform_plot_operation(operation, *args, **kwargs):
@@ -874,11 +797,9 @@ def reset_all_operations():
     if text_box:
         text_box.delete("1.0", tk.END)
 
-
 # Désactive le mouvement de la souris sur tous les widgets de cross_corr_frame
 def disable_mouse_motion(event):
     return "break"
-
 
 ######################################
 #                 GUI                #
@@ -886,8 +807,7 @@ def disable_mouse_motion(event):
 # Initialize the main window
 root = ThemedTk(theme="aquativo")
 root.title("Contrôle qualité conversion MDF4_MDF3 V.1.3")
-# window_width = 1235
-# window_height = 1010
+
 # Fix the window for 17'
 frame_width = 410
 frame_height = 300
@@ -900,29 +820,22 @@ root.resizable(False, False)
 fig_width = 4
 fig_height = 3.7
 # Frames of the GUI
-# Define the size of the frame
-# #frame_width = 410
-# frame_height = 300
-
-# frame_width = 410
-# window_width = frame_width * 3 + 20  # Add padding
-# window_height = 1010
 # MDF3 FRAME
 mdf3_frame = tk.Frame(root, width=frame_width, height=frame_height, bg="lightblue")
 mdf3_frame.grid_propagate(False)
-mdf3_frame.bind("<Enter>", lambda event: None)  # Désactive le survol de la souris
+mdf3_frame.bind("<Enter>", lambda event: None)  
 mdf3_frame.bind("<Leave>", lambda event: None)
-mdf3_frame.bind("<Enter>", lambda event: "break")  # Désactive le survol de la souris
-mdf3_frame.bind("<Leave>", lambda event: "break")  # Désactive le départ de la souris
+mdf3_frame.bind("<Enter>", lambda event: "break")  
+mdf3_frame.bind("<Leave>", lambda event: "break")  
 mdf3_frame.bind_all("<Motion>", lambda event: "break")
 
 # MDF4 FRAME
 mdf4_frame = tk.Frame(root, width=frame_width, height=frame_height, bg="lightblue")
 mdf4_frame.grid_propagate(False)
-mdf4_frame.bind("<Enter>", lambda event: None)  # Désactive le survol de la souris
-mdf4_frame.bind("<Leave>", lambda event: None)  # Désactive le départ de la souris
-mdf4_frame.bind("<Enter>", lambda event: "break")  # Désactive le survol de la souris
-mdf4_frame.bind("<Leave>", lambda event: "break")  # Désactive le départ de la souris
+mdf4_frame.bind("<Enter>", lambda event: None)  
+mdf4_frame.bind("<Leave>", lambda event: None)  
+mdf4_frame.bind("<Enter>", lambda event: "break")  
+mdf4_frame.bind("<Leave>", lambda event: "break")  
 mdf4_frame.bind_all("<Motion>", lambda event: "break")
 
 # CROSS CORR FRAME
@@ -931,8 +844,8 @@ cross_corr_frame = tk.Frame(
 )
 
 # cross_corr_frame.grid_propagate(False)
-cross_corr_frame.bind("<Enter>", lambda event: None)  # Désactive le survol de la souris
-cross_corr_frame.bind("<Leave>", lambda event: None)  # Désactive le départ de la souris
+cross_corr_frame.bind("<Enter>", lambda event: None)  
+cross_corr_frame.bind("<Leave>", lambda event: None)  
 cross_corr_frame.bind_all("<Motion>", lambda event: "break")
 cross_corr_frame.bind(
     "<Enter>", lambda event: "break"
