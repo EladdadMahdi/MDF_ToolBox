@@ -13,7 +13,7 @@
 
 This Python script provides a **Graphical User Interface (GUI)** for analyzing and visualizing data from **Measurement Data Format (MDF)** files, specifically **MDF3** and **MDF4** versions. It is built with `customtkinter` for an enhanced user experience and `matplotlib` for data plotting.
 
-The tool is designed to simplify the analysis of automotive measurement data, making it accessible to engineers and technicians in a user-friendly graphical environment.
+The tool is designed to simplify the analysis of automotive measurement data, making it accessible to engineers and technicians in a user-friendly graphical environment. 
 
 ---
 
