@@ -1,6 +1,14 @@
 
 # MDF Analysis and Visualization Tool
 
+![Python](https://img.shields.io/badge/Python-3.9-blue)
+![Matplotlib](https://img.shields.io/badge/Matplotlib-v3.8.2-blue)
+![Pandas](https://img.shields.io/badge/Pandas-v2.2.0-150458)
+![NumPy](https://img.shields.io/badge/NumPy-v1.26.3-orange)
+![Tkinter](https://img.shields.io/badge/Tkinter-GUI-red)
+![Asammdf](https://img.shields.io/badge/Asammdf-v7.4.1-green)
+![CanMatrix](https://img.shields.io/badge/CanMatrix-v1.0-yellow)
+
 ## Description
 
 This Python script provides a **Graphical User Interface (GUI)** for analyzing and visualizing data from **Measurement Data Format (MDF)** files, specifically **MDF3** and **MDF4** versions. It is built with `customtkinter` for an enhanced user experience and `matplotlib` for data plotting.
