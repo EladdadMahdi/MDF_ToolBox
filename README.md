@@ -11,7 +11,7 @@
 
 ## Description
 
-_The current GUI is in French. A translation to English is planned for a future update. Stay tuned!
+_The current GUI is in French. A translation to English is planned for a future update. Stay tuned!_
 
 This Python script provides a **Graphical User Interface (GUI)** for analyzing and visualizing data from **Measurement Data Format (MDF)** files, specifically **MDF3** and **MDF4** versions. It is built with `customtkinter` for an enhanced user experience and `matplotlib` for data plotting.
 
