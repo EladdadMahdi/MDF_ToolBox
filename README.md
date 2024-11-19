@@ -1,5 +1,5 @@
 
-# MDF Analysis and Visualization Tool
+# MDF File Channel Visualization Tool
 
 ![Python](https://img.shields.io/badge/Python-3.9-blue)
 ![Matplotlib](https://img.shields.io/badge/Matplotlib-v3.8.2-blue)
