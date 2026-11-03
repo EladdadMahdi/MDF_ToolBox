@@ -1,0 +1,80 @@
+name: Release (exécutable Windows)
+
+# - push sur une branche : construit et teste le .exe (téléchargeable dans
+#   l'onglet Actions, rubrique « Artifacts »), sans publier de release ;
+# - push d'un tag vX.Y.Z : construit, teste puis publie une Release GitHub ;
+# - lancement manuel possible depuis l'onglet Actions.
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+    paths: # ignoré pour les tags : un tag déclenche toujours la release
+      - "app/**"
+      - "main.py"
+      - "requirements.txt"
+      - "scripts/build_exe.py"
+      - ".github/workflows/release.yml"
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt "pyinstaller>=6.10"
+
+      - name: Check version matches tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          APP_VERSION=$(python -c "import app; print(app.__version__)")
+          if [ "v$APP_VERSION" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Le tag $GITHUB_REF_NAME ne correspond pas à app/__init__.py (__version__ = $APP_VERSION)"
+            exit 1
+          fi
+
+      - name: Tests
+        run: pytest -v
+
+      - name: Build exe
+        run: python scripts/build_exe.py
+
+      - name: Self-test exe
+        shell: pwsh
+        run: |
+          # L'exe n'a pas de console : on récupère le code de sortie et le rapport écrit dans %TEMP%
+          $p = Start-Process -FilePath dist\MDF_ToolBox.exe -ArgumentList "--self-test" -Wait -PassThru
+          Get-Content "$env:TEMP\MDF_ToolBox_selftest.log"
+          if ($p.ExitCode -ne 0) { throw "Auto-test de l'exécutable en échec (code $($p.ExitCode))" }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MDF_ToolBox-windows
+          path: dist/MDF_ToolBox.exe
+          retention-days: 30
+
+  publish-release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build-windows
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: MDF_ToolBox-windows
+
+      - name: Rename with version
+        run: mv MDF_ToolBox.exe "MDF_ToolBox-${GITHUB_REF_NAME}-windows.exe"
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: MDF_ToolBox-*-windows.exe
+          generate_release_notes: true

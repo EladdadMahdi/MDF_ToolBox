@@ -3,20 +3,23 @@
 from __future__ import annotations
 
 import logging
+import sys
+import tempfile
 import tkinter as tk
 from collections.abc import Callable
 from concurrent.futures import Future, ThreadPoolExecutor
+from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
 
-from . import analysis
+from . import __version__, analysis
 from .mdf_io import MDF_FILETYPES, ChannelData, MdfSource
 
 log = logging.getLogger(__name__)
 
-APP_TITLE = "MDF Channel Visualization V.2.0"
+APP_TITLE = f"MDF Channel Visualization v{__version__}"
 POLL_MS = 50
 
 
@@ -439,8 +442,22 @@ def create_root() -> tk.Tk:
         return tk.Tk()
 
 
+def _setup_logging() -> None:
+    fmt = "%(asctime)s %(levelname)s %(name)s: %(message)s"
+    if sys.stderr is None:
+        # Exécutable Windows sans console : journal dans le dossier temporaire
+        log_file = Path(tempfile.gettempdir()) / "MDF_ToolBox.log"
+        logging.basicConfig(level=logging.INFO, format=fmt, filename=log_file, encoding="utf-8")
+    else:
+        logging.basicConfig(level=logging.INFO, format=fmt)
+
+
 def main() -> None:
-    logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
+    if "--self-test" in sys.argv[1:]:
+        from .selftest import run
+
+        sys.exit(run())
+    _setup_logging()
     root = create_root()
     App(root)
     root.mainloop()

@@ -52,12 +52,21 @@ app/
 ├── analysis.py   # Signal processing: pure functions, no GUI (tested)
 ├── mdf_io.py     # MDF file reading (asammdf) with a channel cache
 ├── gui.py        # Tkinter interface; computations run in a worker thread
+├── selftest.py   # `--self-test`: checks a packaged executable
 └── __main__.py   # `python -m app`
 main.py           # `python main.py`
+scripts/build_exe.py  # PyInstaller build of the Windows executable
 tests/            # pytest: analysis, real MDF3/MDF4 files, GUI smoke tests
 ```
 
-## Installation
+## Download (Windows)
+
+A ready-to-use **`MDF_ToolBox-vX.Y.Z-windows.exe`** is attached to each
+[GitHub Release](https://github.com/EladdadMahdi/MDF_ToolBox/releases): no Python
+installation is needed, just double-click it. The first launch takes a few seconds
+(the executable unpacks itself), and some antivirus software may ask for confirmation.
+
+## Installation (from source)
 
 Requires Python 3.10 or later, with Tkinter (included with Python on Windows
 and macOS; on Debian/Ubuntu: `sudo apt install python3-tk`).
@@ -88,6 +97,24 @@ xvfb-run -a pytest          # Linux, headless, including GUI tests
 ```
 
 Continuous integration (GitHub Actions) runs these checks on every push.
+
+### Building the Windows executable
+
+```bash
+pip install -r requirements.txt pyinstaller
+python scripts/build_exe.py           # -> dist/MDF_ToolBox.exe
+dist/MDF_ToolBox.exe --self-test      # checks the bundled MDF reading, analysis and GUI
+```
+
+The `release.yml` workflow does the same on a Windows runner on every push, and the
+executable can be downloaded from the run's **Artifacts**.
+
+### Publishing a release
+
+1. Update `__version__` in `app/__init__.py` (e.g. `2.1.0`) and commit.
+2. Tag and push: `git tag v2.1.0 && git push origin v2.1.0`.
+3. The workflow checks that the tag matches the version, runs the tests, builds and
+   self-tests the `.exe`, then publishes the GitHub Release with the executable attached.
 
 ## Author
 **Eladdad Mahdi**
