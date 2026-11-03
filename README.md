@@ -1,7 +1,10 @@
 # MDF File Channel Visualization Tool
 
-![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)
 ![asammdf](https://img.shields.io/badge/asammdf-%E2%89%A57.4.5-green)
+![Matplotlib](https://img.shields.io/badge/Matplotlib-%E2%89%A53.8-11557c)
+![NumPy](https://img.shields.io/badge/NumPy-%E2%89%A51.26-013243?logo=numpy&logoColor=white)
+![SciPy](https://img.shields.io/badge/SciPy-%E2%89%A51.12-8CAAE6?logo=scipy&logoColor=white)
 ![Tkinter](https://img.shields.io/badge/Tkinter-GUI-red)
 ![CI](https://github.com/EladdadMahdi/MDF_ToolBox/actions/workflows/ci.yml/badge.svg)
 
