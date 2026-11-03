@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+# Fichiers de mesure (souvent volumineux / confidentiels)
+*.mf4
+*.MF4
+*.mdf
+*.MDF
+*.dat
+*.DAT

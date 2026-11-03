@@ -1,58 +1,90 @@
-
 # MDF File Channel Visualization Tool
 
-![Python](https://img.shields.io/badge/Python-3.9-blue)
-![Matplotlib](https://img.shields.io/badge/Matplotlib-v3.8.2-blue)
-![Pandas](https://img.shields.io/badge/Pandas-v2.2.0-150458)
-![NumPy](https://img.shields.io/badge/NumPy-v1.26.3-orange)
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
+![asammdf](https://img.shields.io/badge/asammdf-%E2%89%A57.4.5-green)
 ![Tkinter](https://img.shields.io/badge/Tkinter-GUI-red)
-![Asammdf](https://img.shields.io/badge/Asammdf-v7.4.1-green)
-![CanMatrix](https://img.shields.io/badge/CanMatrix-v1.0-yellow)
+![CI](https://github.com/EladdadMahdi/MDF_ToolBox/actions/workflows/ci.yml/badge.svg)
 
 ## Description
 
-_The current GUI is in French. A translation to English is planned for a future update. Stay tuned!_
+_The GUI is in French. An English translation is planned._
 
-This Python script provides a **Graphical User Interface (GUI)** for analyzing and visualizing data from **Measurement Data Format (MDF)** files, specifically **MDF3** and **MDF4** versions. It is built with `customtkinter` for an enhanced user experience and `matplotlib` for data plotting.
-
-The tool is designed to simplify the analysis of automotive measurement data, making it accessible to engineers and technicians in a user-friendly graphical environment. 
-
----
+A desktop tool (Tkinter + Matplotlib) for comparing a channel recorded in two
+**MDF** measurement files (MDF3 and/or MDF4), for example to validate that a
+new acquisition chain records the same signal as the old one.
 
 ## Features
 
-### **1. File Management**
-- Load MDF3 or MDF4 files using a file selection dialog.
-- Display available channels from the loaded file in a dropdown menu.
+### File management
+- Load MDF3 or MDF4 files (`.mdf`, `.mf4`, `.dat`). The version is detected from the file itself.
+- Channel list with **type-to-filter** search.
+- Files are loaded in the background: the window stays responsive.
 
-### **2. Data Visualization**
-- Plot data from selected MDF3 or MDF4 channels for visual analysis.
-- Overlay plots for MDF3 and MDF4 data for comparison.
+### Visualization
+- Plot a channel with its number of points and sampling frequency.
+- Overlay the two channels on the same time axis.
+- Zoom, pan and save the image from each plot's toolbar.
 
-### **3. Signal Analysis**
-- **Cross-Correlation:** Calculate and visualize temporal relationships between two signals.
-- **Auto-Correlation:** Analyze periodic properties of a signal.
-- **Pearson Correlation:** Compute the Pearson correlation coefficient between two signals to assess their linear relationship.
+### Signal analysis
+All comparisons first **resample both signals onto a common time base**,
+restricted to the time range covered by both. This makes the results correct
+even when the two files have different sampling rates or start times.
 
----
+| Analysis | Numeric signals | Text / state signals |
+|---|---|---|
+| **Cross-correlation** | Normalised (in [-1, 1]); the peak gives the time delay between the two files | Averaged over the states the two signals share |
+| **Auto-correlation** | Normalised to 1 at zero lag | Averaged over the states (one-hot encoding) |
+| **Similarity** | Pearson correlation coefficient | Percentage of time where both states are equal |
 
-## Script Structure
+A positive cross-correlation lag means the MDF4 signal is **late** relative to the MDF3 signal.
 
-- **Modular Design:** Code is divided into functions for tasks like file loading, updating channel menus, and data visualization.
-- **Error Handling:** Includes mechanisms to handle errors during file operations and visualization tasks.
-- **Separation of Concerns:** User interface configuration and business logic are separated for improved maintainability.
+"Analyse complète" runs every analysis in one click. If one analysis cannot be
+computed (for example, a constant signal), the others are still displayed, and
+a message explains what failed.
 
----
+## Project structure
+
+```
+app/
+├── analysis.py   # Signal processing: pure functions, no GUI (tested)
+├── mdf_io.py     # MDF file reading (asammdf) with a channel cache
+├── gui.py        # Tkinter interface; computations run in a worker thread
+└── __main__.py   # `python -m app`
+main.py           # `python main.py`
+tests/            # pytest: analysis, real MDF3/MDF4 files, GUI smoke tests
+```
 
 ## Installation
 
-### **Requirements**
-The script uses the following libraries:
-- `customtkinter`
-- `matplotlib`
-- `numpy`
-- `pandas`
+Requires Python 3.10 or later, with Tkinter (included with Python on Windows
+and macOS; on Debian/Ubuntu: `sudo apt install python3-tk`).
 
-Install the required dependencies using:
 ```bash
 pip install -r requirements.txt
+```
+
+`ttkthemes` is optional. Without it, the default Tk theme is used.
+
+## Usage
+
+```bash
+python main.py        # or: python -m app
+```
+
+1. Import an MDF4 file and an MDF3 file.
+2. Choose a channel in each file (type to filter the list).
+3. Plot each channel and its auto-correlation, or click **Analyse complète**.
+
+## Development
+
+```bash
+pip install -r requirements-dev.txt
+ruff check . && ruff format --check .
+pytest                      # GUI tests are skipped when there is no display
+xvfb-run -a pytest          # Linux, headless, including GUI tests
+```
+
+Continuous integration (GitHub Actions) runs these checks on every push.
+
+## Author
+**Eladdad Mahdi**
